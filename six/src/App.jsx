@@ -1,58 +1,57 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.scss";
-import { Success } from "./components/Success";
-import { Users } from "./components/Users";
+import Collection from "./Collection";
 
-// Тут список пользователей: https://reqres.in/api/users
-
-export default function App() {
-  const [users, setUsers] = useState([]);
-  const [invites, setInvites] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
-  const [success, setSuccess] = useState(false);
+function App() {
+  const [collections, setCollections] = useState([]);
+  const [value, setValue] = useState("");
 
   useEffect(() => {
-    fetch("https://reqres.in/api/users")
+    fetch("https://65aea9dc1dfbae409a754dec.mockapi.io/pphotos")
       .then((res) => res.json())
-      .then((json) => {
-        setUsers(json.data);
-      })
-      .catch((err) => alert(err))
-      .finally(() => setIsLoading(false));
+      .then((json) => setCollections(json))
+      .catch((err) => alert(err));
   }, []);
-
-  function onChangeSearchValue(event) {
-    setSearchValue(event.target.value);
-  }
-
-  function onClickInvite(id) {
-    if (invites.includes(id)) {
-      setInvites((prev) => prev.filter((_id) => _id !== id));
-    } else {
-      setInvites((prev) => [...prev, id]);
-    }
-  }
-
-  function onClickSendInvites() {
-    setSuccess(true);
-  }
 
   return (
     <div className="App">
-      {success ? (
-        <Success count={invites}/>
-      ) : (
-        <Users
-          items={users}
-          isLoading={isLoading}
-          searchValue={searchValue}
-          onChangeSearchValue={onChangeSearchValue}
-          invites={invites}
-          onClickInvite={onClickInvite}
-          onClickSendInvites={onClickSendInvites}
+      <h1>Моя коллекция фотографий</h1>
+      <div className="top">
+        <ul className="tags">
+          <li className="active">Все</li>
+          <li>Горы</li>
+          <li>Море</li>
+          <li>Архитектура</li>
+          <li>Города</li>
+        </ul>
+        <input
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          className="search-input"
+          placeholder="Поиск по названию"
         />
-      )}
+      </div>
+      <div className="content">
+        {collections
+          .filter((obj) => {
+            console.log(obj)
+            return obj.name.toLowerCase().includes(value.toLowerCase());
+          })
+          .map((obj, index) => {
+            <Collection
+              key={index}
+              name={obj.name}
+              images={obj.photos}
+            />;
+          })}
+      </div>
+      <ul className="pagination">
+        <li>1</li>
+        <li className="active">2</li>
+        <li>3</li>
+      </ul>
     </div>
   );
 }
+
+export default App;
